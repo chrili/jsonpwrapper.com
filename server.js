@@ -42,6 +42,8 @@ app.get('/url/:target', function(request, response) {
 	var callbackParam = request.query.callback;
 
 	fetch(request.params.target, function(data){
+		response.contentType(".js");
+		
 		if(callbackParam) {
 			response.write(callbackParam);
 			response.write('(');
