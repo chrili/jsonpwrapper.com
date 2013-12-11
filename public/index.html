@@ -7,27 +7,33 @@
 </head>
 <body>
 <h1><abbr>JSONP</abbr> wrapper</h1>
-<h2>Everything to <abbr title="JSON with Padding">JSONP</abbr> converter. Gateway for cross-domain requests.</h2>
-<form action="/">
+<h2>JSON to <abbr title="JSON with Padding">JSONP</abbr> converter. Gateway for cross-domain requests.</h2>
+<h2>This fork converts only json into jsonp (instead of a string), and allows the output to be wrapped by jquery.</h2>
+<form id="jsontojsonp" action="/">
   <div class="field url-row">
-    <input name="urls[]" type="url" value="http://elv1s.ru/x/pets.txt" required><label><abbr>URL</abbr>s</label>
+    <input name="url" type="url" value="http://www.reddit.com/.json" required><label><abbr>URL</abbr>s</label>
     <div id="url_dummy" class="hidden last"><input type="url" name="urls[]"></div>
-    <button onclick="add_one_more_url(this); return false;">+</button>
   </div>
   <div class="field callback-row">
-    <input name="callback" id="callback" type="text" placeholder="console.log">
+    <input name="callback" id="callback" type="text" placeholder="optional">
     <label>Callback</label>
   </div>
   <div class="field submit-row">
     <input type="submit" value="Convert">
-    <a href="http://stackoverflow.com/questions/2131740/online-jsonp-converter-wrapper">What is that?</a>
+    <a href="http://github.com/NV/jsonpwrapper.com/">Original Code</a>
     &middot;
-    <a href="http://github.com/NV/jsonpwrapper.com/">Source code</a>
+    <a href="https://github.com/chrili/jsonpwrapper.com/">This Fork</a>
   </div>
 </form>
 <script src="main.js" async></script>
 <script src="http://nv.github.com/placeholder.js/placeholder.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 <script>
 inputPlaceholder(document.getElementById('callback'));
+$('#jsontojsonp').submit(function(e) {
+  console.log("Submit");
+  window.location = window.location.origin + '/url/' + encodeURIComponent($('input[name=url]').val());
+  return false;
+})
 </script>
 </body></html>

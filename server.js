@@ -4,7 +4,7 @@ var fs = require('fs');
 var URL = require('url');
 
 var express = require('express');
-var app = express.createServer();
+var app = express();
 
 app.configure(function(){
 	app.use(express.methodOverride());
@@ -19,56 +19,43 @@ function fetch(uri, callback) {
 		uri = 'http://' + uri;
 	}
 	var url = URL.parse(uri, true);
-	var client = http.createClient(80, url.host);
-	var request = client.request('GET', url.pathname, {'host': url.host});
-	request.addListener('response', function responseHandler(response) {
-		var result = '';
-		response.setEncoding('utf8');
-		response.addListener('data', function dataHandler(chunk) {
+
+	var result = '';
+
+	http.get(url.href, function(res) {
+		res.setEncoding('utf8');
+		res.on('data', function(chunk) {
 			result += chunk;
-		});
-		response.addListener('end', function endHandler() {
+		}).on('end', function() {
 			callback(result);
 		});
+	}).on('error', function(e) {
+		console.log("Got error: " + e.message);
 	});
-	request.end();
-}
-
-function fetchMany(uris, callback) {
-	var bodies = [];
-	for (var i=0; i<uris.length; i++) {
-		fetch(uris[i], function fetchHandler(data){
-			bodies.push(data);
-			if (bodies.length === uris.length) {
-				callback(bodies);
-			}
-		});
-	}
 }
 
 app.get('/', function(request, response) {
-	var urls = request.query.urls;
-	var url = request.query.url;
-	if (urls || url) {
-		var callbackParam = request.query.callback || 'console.log';
-		if (urls) {
-			fetchMany(urls, function fetchManyHandler(bodies){
-				var hashes = [];
-				for (var i=0; i<bodies.length; i++) {
-					hashes.push({body: bodies[i]});
-				}
-				response.contentType(".js");
-				response.send(callbackParam +'('+ JSON.stringify(hashes) +')');
-			});
-		} else {
-			fetch(url, function fetchHandler(data) {
-				response.send(callbackParam +'({"body":'+ JSON.stringify(data) +'})');
-				response.contentType(".js");
-			});
+	response.sendfile('public/index.html');
+});
+
+app.get('/url/:target', function(request, response) {
+	var callbackParam = request.query.callback;
+
+	fetch(request.params.target, function(data){
+		if(callbackParam) {
+			response.write(callbackParam);
+			response.write('(');
 		}
-	} else {
-		response.sendfile('public/index.html');
-	}
+
+		response.write(data);
+
+		if(callbackParam) {
+			response.write(')');
+		}
+
+		response.end();
+	});
+
 });
 
 app.get('/*', function(request, response) {
