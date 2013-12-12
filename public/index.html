@@ -31,8 +31,16 @@
 <script>
 inputPlaceholder(document.getElementById('callback'));
 $('#jsontojsonp').submit(function(e) {
-  console.log("Submit");
-  window.location = window.location.origin + '/url/' + encodeURIComponent($('input[name=url]').val());
+  var optional = $('input[name=callback]').val();
+  var targetURL = $('input[name=url]').val();
+
+  var newLocation = window.location.origin;
+  newLocation += '/url/' + encodeURIComponent(targetURL);
+  if(optional) {
+    newLocation += '?callback=' + optional;
+  }
+
+  window.location = newLocation;
   return false;
 })
 </script>
